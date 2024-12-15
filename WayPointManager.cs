@@ -5,13 +5,16 @@ namespace RPG.Core.NavPoints
     public class WaypointManager : MonoBehaviour
     {
         [SerializeField]
-        private Vector3[] waypoints; // Array of waypoints (positions)
+        public Vector3[] waypoints; // Array of waypoints (positions)
         
+        //serialize field so it saves to the specific instance of the object
+        #if UNITY_EDITOR
         [SerializeField]
-        private bool isSnappingEnabled = true; // Snapping toggle for this specific instance
+        public bool isSnappingEnabled = true;
 
         [SerializeField]
-        private LayerMask snapLayerMask = 0;  // Default to "Default" layer (0)
+        public LayerMask snapLayerMask = 0;  // Default to "Default" layer (0)
+        #endif
 
         public Vector3 GetWaypoint(int index)
         {
