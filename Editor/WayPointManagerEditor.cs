@@ -18,6 +18,7 @@ namespace RPG.Core.NavPoints
             {
                 // Draw a handle for each waypoint
                 Vector3 waypointPosition = waypointManager.waypoints[i];
+                Handles.Label(waypointPosition + Vector3.up * 0.5f, $"Waypoint {i + 1}");
                 EditorGUI.BeginChangeCheck();
                 
                 // Draw the position handle
@@ -26,14 +27,23 @@ namespace RPG.Core.NavPoints
                 // If snapping is enabled, apply snapping logic
                 if (waypointManager.isSnappingEnabled)
                 {
+
                     Ray ray = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
                     RaycastHit hit;
+
+
+
 
                     // Perform a raycast with the selected layer mask
                     if (Physics.Raycast(ray, out hit, Mathf.Infinity, (1 << waypointManager.snapLayerMask)))
                     {
                         // Snap to the hit point
                         waypointPosition = hit.point;
+                        //draw disc at handle oriented to normal of hit point
+                        Handles.color = Color.green;
+                        Handles.DrawWireDisc(hit.point, hit.normal, 0.5f);
+                        //reset color
+                        Handles.color = Color.white;
                     }
                 }
 
@@ -44,9 +54,6 @@ namespace RPG.Core.NavPoints
                     waypointManager.waypoints[i] = waypointPosition;
                 }
 
-                // Optionally, you can draw a label or marker at each waypoint
-                Handles.Label(waypointPosition + Vector3.up * 0.5f, $"Waypoint {i + 1}");
-                
                 // Draw a line between the waypoints
                 Handles.DrawLine(waypointManager.waypoints[i], waypointManager.waypoints[(i + 1) % waypointManager.waypoints.Length]);
             }
@@ -67,15 +74,19 @@ namespace RPG.Core.NavPoints
 
             // Add a foldout for snapping options
             EditorGUILayout.Space();
+            //section divider
             EditorGUILayout.LabelField("Snapping Options", EditorStyles.boldLabel);
+            
+
 
             // Snapping toggle
-            waypointManager.isSnappingEnabled = EditorGUILayout.Toggle("Enable Snapping", waypointManager.isSnappingEnabled);
+            EditorGUILayout.LabelField("Grab handles axis locks are (mostly) meaningless when raycast snapping is enabled", EditorStyles.helpBox);
+            waypointManager.isSnappingEnabled = EditorGUILayout.Toggle("Enable Raycast Snapping", waypointManager.isSnappingEnabled);
 
             EditorGUI.BeginDisabledGroup(!waypointManager.isSnappingEnabled);
 
             // LayerMask dropdown for selecting which layers the raycast will interact with
-            waypointManager.snapLayerMask = EditorGUILayout.LayerField("Snap Layer Mask", waypointManager.snapLayerMask);
+            waypointManager.snapLayerMask = EditorGUILayout.LayerField("Snap To ... on layer", waypointManager.snapLayerMask);
 
             EditorGUI.EndDisabledGroup();
         }
